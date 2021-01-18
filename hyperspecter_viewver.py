@@ -84,7 +84,10 @@ def create_new_pipeline():
         if (ext_ == '.npy'):
             hypercube = numpy.load(fn)
         elif (ext_ in images_ext_list):
-            hypercube = cv2.imread(fn).transpose((2, 0, 1)) #EXIF fix might be here...            
+            #hypercube = cv2.imread(fn).transpose((2, 0, 1)) #EXIF fix might be here...            
+            f = open(fn, "rb")
+            img = cv2.imdecode(numpy.frombuffer(f.read(), dtype=numpy.uint8), cv2.IMREAD_COLOR)
+            hypercube = img.transpose((2, 0, 1))
         num_layers = hypercube.shape[0]
         cv2.namedWindow( "Image" )
         cv2.namedWindow( "Settings" )

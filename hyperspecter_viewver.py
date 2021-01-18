@@ -90,7 +90,7 @@ def create_new_pipeline():
             hypercube = img.transpose((2, 0, 1))
         num_layers = hypercube.shape[0]
         cv2.namedWindow( "Image" )
-        cv2.namedWindow( "Settings" )
+        cv2.namedWindow( "Settings", cv2.WINDOW_NORMAL )
         cv2.setMouseCallback('Image', onmouse)
         cv2.createTrackbar('layer', 'Settings', 0, num_layers-1, OnLayerChange)
         cv2.createTrackbar('red_edge', 'Settings', num_layers//2, num_layers-1, OnRedEdgeChange)

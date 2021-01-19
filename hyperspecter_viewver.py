@@ -4,7 +4,7 @@ import sys
 import easygui
 import os
 
-images_ext_list = ['.jpg', '.jpeg', '.png', '.bmp', '.tif', '.tiff', 'RGB Image'] #Images list
+images_ext_list = ['.jpg', '.jpeg', '.png', '.bmp', '.tif', 'RGB Image'] #Images list
 
 def run_euc(matrix_a, matrix_b):
     dist = numpy.sqrt(numpy.sum((numpy.transpose(matrix_a, (1, 2, 0)) - matrix_b)**2, axis=2))
@@ -78,7 +78,7 @@ def OnRedEdgeChange(red_edge):
 def create_new_pipeline():
     global hypercube, num_layers, current_layer, paint_flag
     paint_flag = False
-    fn = easygui.fileopenbox(msg='Открыть гиперкуб numpy', filetypes=[['.npy', 'Numpy Hypercube'], images_ext_list], default='*.npy')
+    fn = easygui.fileopenbox(msg='Открыть гиперкуб numpy', filetypes=[['.npy', 'Numpy Hypercube'], ['.tiff', 'GeoTIFF'], images_ext_list], default='*.npy')
     if fn:
         _, ext_ = os.path.splitext(fn)        
         if (ext_ == '.npy'):

@@ -8,7 +8,8 @@ images_ext_list = ['.jpg', '.jpeg', '.png', '.bmp', '.tif', 'RGB Image'] #Images
 
 def run_euc(matrix_a, matrix_b):
     dist = numpy.sqrt(numpy.sum((numpy.transpose(matrix_a, (1, 2, 0)) - matrix_b)**2, axis=2))
-    return 1.0 - dist/numpy.max(dist)
+    temp_min = numpy.min(dist)
+    return 1.0 - (dist - temp_min) / (numpy.max(dist) - temp_min)
 
 def OnLayerChange(layer):
     global hypercube, num_layers, current_layer, source_frame

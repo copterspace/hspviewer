@@ -83,6 +83,11 @@ def create_new_pipeline():
         _, ext_ = os.path.splitext(fn)        
         if (ext_ == '.npy'):
             hypercube = numpy.load(fn)
+        elif (ext_ == '.tiff'):
+            # https://kipcrossing.github.io/2021-01-04-geotiff-python-package/
+            from geotiff import GeoTiff
+            geoTiff = GeoTiff(fn)
+            hypercube = geoTiff.read()[:].transpose((2, 0, 1))
         elif (ext_ in images_ext_list):
             #hypercube = cv2.imread(fn).transpose((2, 0, 1)) #EXIF fix might be here...            
             f = open(fn, "rb")

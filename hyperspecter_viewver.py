@@ -71,6 +71,8 @@ def onmouse(event, x, y, flags, param):
         paint_flag = False
         if not ((x == x0) or (y == y0)):
             cv2.imshow('Distances Map', run_euc(hypercube, numpy.mean(numpy.mean(hypercube[:, min(y0, y):max(y0, y), min(x0, x): max(x0, x)], axis=1), axis=1)))
+        else:
+            cv2.imshow('Distances Map', run_euc(hypercube, hypercube[:, y, x]))
 
 def OnRedEdgeChange(red_edge):
     layer = cv2.getTrackbarPos('layer', 'Settings')

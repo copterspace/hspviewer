@@ -96,6 +96,11 @@ def onmouse_diagram(event, x, y, flags, param):
         #else:
         #    diag_flags[num_col] = 1
         draw_diagram()
+    elif (event == cv2.EVENT_RBUTTONUP):
+        for i in range(len(diag_flags)):
+            diag_flags[i] = not diag_flags[i]
+        draw_diagram()
+
 def OnRedEdgeChange(red_edge):
     layer = cv2.getTrackbarPos('layer', 'Settings')
     OnLayerChange(layer)

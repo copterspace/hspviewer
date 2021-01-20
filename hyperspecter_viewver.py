@@ -7,6 +7,7 @@ import os
 images_ext_list = ['.jpg', '.jpeg', '.png', '.bmp', '.tif', 'RGB Image'] #Images list
 
 def run_euc(matrix_a, matrix_b):
+    global diag_flags
     dist = numpy.sqrt(numpy.sum((numpy.transpose(matrix_a, (1, 2, 0)) - matrix_b)**2, axis=2))
     temp_min = numpy.min(dist)
     return 1.0 - (dist - temp_min) / (numpy.max(dist) - temp_min)
@@ -31,10 +32,10 @@ def OnLayerChange(layer):
     draw_diagram()
 
 def draw_diagram():
-    global diag_data
+    global diag_data, diag_flags
     if type(diag_data) != type(None):
         col_width = min(1980//len(diag_data), 15)
-        img = numpy.zeros((256, num_layers*col_width, 3), numpy.uint8)
+        img = numpy.zeros((256+12, num_layers*col_width, 3), numpy.uint8)
         red_edge = cv2.getTrackbarPos('red_edge', 'Settings')
         for i in range(num_layers):
             h = diag_data[i]#int(self.hist[i])
@@ -42,11 +43,17 @@ def draw_diagram():
                 cv2.rectangle(img, (i * col_width, 255), ((i + 1) * col_width - 2, 255 - h), (int(135.0*(1 - i/red_edge) ), 255, 255), -1)
             else:
                 cv2.rectangle(img, (i * col_width, 255), ((i + 1) * col_width - 2, 255 - h), (0, 1, 255), -1)
-
+            # Draw layer checkbox
+            if type(diag_flags) is not numpy.ndarray or diag_flags[i]:
+                cv2.line(img,(i * col_width+2, 262),((i + 1) * col_width - 2, 262),(80,255,255), 2)
+                cv2.line(img,(i * col_width + col_width//2, 259),(i * col_width + col_width//2, 266),(80,255,255), 2)
+            else:
+                cv2.line(img,(i * col_width+2, 262),((i + 1) * col_width - 2, 262),(20,255,255), 2)
         cv2.line(img, (current_layer * col_width, 10), (current_layer*col_width, 245), (128, 1, 255))
         cv2.line(img, ((current_layer + 1) * col_width - 1, 10), ((current_layer + 1) * col_width - 1, 245), (128, 1, 255))
         img = cv2.cvtColor(img, cv2.COLOR_HSV2BGR)
         cv2.imshow('hist', img)
+        cv2.setMouseCallback('hist', onmouse_diagram)
 
 def onmouse(event, x, y, flags, param):
     global hypercube, num_layers, current_layer, diag_data, x0, y0, source_frame, paint_flag
@@ -74,12 +81,25 @@ def onmouse(event, x, y, flags, param):
         else:
             cv2.imshow('Distances Map', run_euc(hypercube, hypercube[:, y, x]))
 
+def onmouse_diagram(event, x, y, flags, param):
+    global num_layers, current_layer, diag_data, diag_flags
+    if type(diag_flags) is not numpy.ndarray:
+        diag_flags=numpy.ones_like(diag_data, dtype=int)
+
+    if (event == cv2.EVENT_LBUTTONUP):
+        col_width = min(1980//len(diag_data), 15)
+        num_col = x // col_width
+        if diag_flags[num_col]:
+            diag_flags[num_col] = 0
+        else:
+            diag_flags[num_col] = 1
+        draw_diagram()
 def OnRedEdgeChange(red_edge):
     layer = cv2.getTrackbarPos('layer', 'Settings')
     OnLayerChange(layer)
 
 def create_new_pipeline():
-    global hypercube, num_layers, current_layer, paint_flag
+    global hypercube, num_layers, current_layer, paint_flag, diag_flags
     paint_flag = False
     fn = easygui.fileopenbox(msg='Открыть гиперкуб numpy', filetypes=[['.npy', 'Numpy Hypercube'], ['.tiff', 'GeoTIFF'], images_ext_list], default='*.npy')
     if fn:
@@ -105,6 +125,7 @@ def create_new_pipeline():
         cv2.createTrackbar('red_edge', 'Settings', num_layers//2, num_layers-1, OnRedEdgeChange)
         cv2.setTrackbarMin('red_edge', 'Settings', 1)
         current_layer = 0
+        diag_flags = None
         OnLayerChange(0)
 
 def save_diag_data():

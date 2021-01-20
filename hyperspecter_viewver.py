@@ -84,17 +84,11 @@ def onmouse(event, x, y, flags, param):
 
 def onmouse_diagram(event, x, y, flags, param):
     global num_layers, current_layer, diag_data, diag_flags
-    #if type(diag_flags) is not numpy.ndarray:
-    #    diag_flags=numpy.ones_like(diag_data, dtype=int)
-    #    print(diag_flags.shape)
 
     if (event == cv2.EVENT_LBUTTONUP):
         col_width = min(1980//len(diag_data), 15)
         num_col = x // col_width
         diag_flags[num_col] = not diag_flags[num_col] 
-        #    diag_flags[num_col] = 0
-        #else:
-        #    diag_flags[num_col] = 1
         draw_diagram()
     elif (event == cv2.EVENT_RBUTTONUP):
         for i in range(len(diag_flags)):
@@ -124,7 +118,6 @@ def create_new_pipeline():
             img = cv2.imdecode(numpy.frombuffer(f.read(), dtype=numpy.uint8), cv2.IMREAD_COLOR)
             hypercube = img.transpose((2, 0, 1))
         num_layers = hypercube.shape[0]
-        # print(num_layers)
         cv2.namedWindow( "Image" )
         cv2.namedWindow( "Settings", cv2.WINDOW_NORMAL )
         cv2.resizeWindow("Settings", 300, 100)
@@ -143,9 +136,6 @@ def save_diag_data():
         numpy.savetxt(fn, diag_data,
             delimiter =", ",
             fmt ='% s')
-    #print(fn)
-    #for val in diag_data:
-        #print(val)
 
 def write_images():
     global hypercube

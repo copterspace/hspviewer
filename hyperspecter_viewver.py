@@ -8,8 +8,8 @@ images_ext_list = ['.jpg', '.jpeg', '.png', '.bmp', '.tif', 'RGB Image'] #Images
 
 def run_euc(matrix_a, matrix_b):
     global diag_flags
-    # selections_list = [i for i in range(len(diag_flags)) if diag_flags[i]]
-    dist = numpy.sqrt(numpy.sum((numpy.transpose(matrix_a, (1, 2, 0))[:, :, diag_flags] - matrix_b[diag_flags])**2, axis=2))
+    selections_list = [i for i in range(len(diag_flags)) if diag_flags[i]]
+    dist = numpy.sqrt(numpy.sum((numpy.transpose(matrix_a, (1, 2, 0))[:, :, selections_list] - matrix_b[selections_list])**2, axis=2))
     temp_min = numpy.min(dist)
     return 1.0 - (dist - temp_min) / (numpy.max(dist) - temp_min)
 
@@ -119,7 +119,7 @@ def create_new_pipeline():
             img = cv2.imdecode(numpy.frombuffer(f.read(), dtype=numpy.uint8), cv2.IMREAD_COLOR)
             hypercube = img.transpose((2, 0, 1))
         num_layers = hypercube.shape[0]
-        print(num_layers)
+        # print(num_layers)
         cv2.namedWindow( "Image" )
         cv2.namedWindow( "Settings", cv2.WINDOW_NORMAL )
         cv2.resizeWindow("Settings", 300, 100)

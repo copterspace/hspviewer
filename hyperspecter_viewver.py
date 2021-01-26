@@ -28,43 +28,55 @@ def OnLayerChange(layer):
     v = hypercube[layer]
 
     hsv = cv2.merge([h, s, v])
-    hsv = cv2.cvtColor(hsv, cv2.COLOR_HSV2BGR)
     # draw compare points
     num_points = cv2.getTrackbarPos('num_points', 'Settings')
     while len(compare_points)>num_points:
         del compare_points[0]
     for i in range(len(compare_points)):
         x, y = compare_points[i]
-        cv2.line(hsv, (x-10,y), (x+10,y), (255,255,255),1)
-        cv2.line(hsv, (x,y-10), (x,y+10), (255,255,255),1)
-        cv2.putText(hsv, str(i+1), (x+2,y-2), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (255,255,255), 1)
-
+        color_index = int(135.0*(i/num_points))
+        cv2.line(hsv, (x-10,y), (x+10,y), (color_index,255,255),1)
+        cv2.line(hsv, (x,y-10), (x,y+10), (color_index,255,255),1)
+        cv2.putText(hsv, str(i+1), (x+2,y-2), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (color_index,255,255), 1)
+    hsv = cv2.cvtColor(hsv, cv2.COLOR_HSV2BGR)
     source_frame = hsv
     cv2.imshow('Image', hsv)
     draw_diagram()
 
 def draw_diagram():
-    global diag_data, diag_flags
-    if type(diag_data) != type(None):
-        col_width = min(1980//len(diag_data), 15)
+    global diag_flags, compare_points, hypercube, num_layers #diag_data, 
+    #if type(diag_data) != type(None):
+    num_points = len(compare_points)
+    if num_points > 0:
+        col_width = min(1980//num_layers, 15)
         img = numpy.zeros((256+12, num_layers*col_width, 3), numpy.uint8)
         red_edge = cv2.getTrackbarPos('red_edge', 'Settings')
+        for pt in range(num_points):
+            x, y = compare_points[pt]
+            diag_data = hypercube[:, y, x]
+            for i in range(num_layers):
+                h = diag_data[i]#int(self.hist[i])
+                if i <= red_edge:
+                    cv2.rectangle(img, (i * col_width, 255), ((i + 1) * col_width - 2, 255 - h), (int(135.0*(1 - i/red_edge) ), 255, 255), -1)
+                else:
+                    cv2.rectangle(img, (i * col_width, 255), ((i + 1) * col_width - 2, 255 - h), (0, 1, 255), -1)
+        # Draw layer graph
+        for pt in range(num_points):
+            x, y = compare_points[pt]
+            diag_data = hypercube[:, y, x]
+            color_index = int(135.0*(pt/num_points))
+            for i in range(num_layers):
+                if i > 0:
+                    h = diag_data[i]
+                    h0 = diag_data[i-1]
+                    cv2.line(img, ((i-1)*col_width + col_width//2, 255 - h0), (i*col_width + col_width//2, 255-h), (color_index , 255, 255) ,2)
+        # Draw layer checkbox
         for i in range(num_layers):
-            h = diag_data[i]#int(self.hist[i])
-            if i <= red_edge:
-                cv2.rectangle(img, (i * col_width, 255), ((i + 1) * col_width - 2, 255 - h), (int(135.0*(1 - i/red_edge) ), 255, 255), -1)
-            else:
-                cv2.rectangle(img, (i * col_width, 255), ((i + 1) * col_width - 2, 255 - h), (0, 1, 255), -1)
-            # Draw layer checkbox
             if diag_flags[i]:
                 cv2.line(img,(i * col_width+2, 262),((i + 1) * col_width - 2, 262),(80,255,255), 2)
                 cv2.line(img,(i * col_width + col_width//2, 259),(i * col_width + col_width//2, 266),(80,255,255), 2)
             else:
                 cv2.line(img,(i * col_width+2, 262),((i + 1) * col_width - 2, 262),(20,255,255), 2)
-            # Draw layer graph
-            if i > 0:
-                h0 = diag_data[i-1]
-                cv2.line(img, ((i-1)*col_width + col_width//2, 255 - h0), (i*col_width + col_width//2, 255-h), (0, 1, 255) ,1)
         cv2.line(img, (current_layer * col_width, 10), (current_layer*col_width, 245), (128, 1, 255))
         cv2.line(img, ((current_layer + 1) * col_width - 1, 10), ((current_layer + 1) * col_width - 1, 245), (128, 1, 255))
         img = cv2.cvtColor(img, cv2.COLOR_HSV2BGR)
@@ -80,9 +92,7 @@ def onmouse(event, x, y, flags, param):
         cv2.imshow('Image', res_frame)        
         
     if (event == cv2.EVENT_LBUTTONDOWN):
-        #print(x, y)
-        #col_width = 15
-        diag_data = hypercube[:, y, x]
+        # diag_data = hypercube[:, y, x]
         compare_points.append( (x,y) )
         draw_diagram()
         OnLayerChange(current_layer)
@@ -100,10 +110,10 @@ def onmouse(event, x, y, flags, param):
             cv2.imshow('Distances Map', run_euc(hypercube, hypercube[:, y, x]))
 
 def onmouse_diagram(event, x, y, flags, param):
-    global num_layers, current_layer, diag_data, diag_flags
+    global num_layers, current_layer, diag_data, diag_flags, num_layers
 
     if (event == cv2.EVENT_LBUTTONUP):
-        col_width = min(1980//len(diag_data), 15)
+        col_width = min(1980//num_layers, 15)
         num_col = x // col_width
         diag_flags[num_col] = not diag_flags[num_col] 
         draw_diagram()

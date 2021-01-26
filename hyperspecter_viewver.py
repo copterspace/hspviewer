@@ -165,12 +165,16 @@ def create_new_pipeline():
         OnLayerChange(0)
 
 def save_diag_data():
-    global diag_data
-    fn = easygui.filesavebox(msg='Сохранить гистограмму точки в csv', default='*.csv', filetypes=['*.csv',])
+    global compare_points, hypercube #diag_data
+    fn = easygui.filesavebox(msg='Сохранить гистограммы точек в csv', default='*.csv', filetypes=['*.csv',])
     if fn:
-        numpy.savetxt(fn, diag_data,
-            delimiter =", ",
-            fmt ='% s')
+        fn = fn.split('.csv')[0]
+        for pt in range(len(compare_points)):
+            x, y = compare_points[pt]
+            diag_data = hypercube[:, y, x]
+            numpy.savetxt(fn+'_'+str(pt+1)+'.csv', diag_data,
+                delimiter =", ",
+                fmt ='% s')
 
 def write_images():
     global hypercube

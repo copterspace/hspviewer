@@ -178,14 +178,15 @@ def save_diag_data():
 
 def write_images():
     global hypercube
-    fn = easygui.filesavebox(msg='Сохранить слои в png', default='img_.png', filetypes=['*.png',])
+    ext = easygui.buttonbox('Выберите формат сохранения слоёв','Формат',('.bmp','.png'))
+    fn = easygui.filesavebox(msg='Сохранить слои в '+ext, default='img_'+ext, filetypes=['*'+ext,])
     if fn:
         # cv2.imwrite(fn,hypercube[0]) - эта хрень не понимает русских букв в пути
         num_layers = hypercube.shape[0]
         fn = fn.split('.')[0]
         for i in range(num_layers):
-            retval, buf = cv2.imencode('.png', hypercube[i])
-            buf.tofile(fn+str(i)+'.png')
+            retval, buf = cv2.imencode(ext, hypercube[i])
+            buf.tofile(fn+str(i)+ext)
 
 def main():
     global diag_data

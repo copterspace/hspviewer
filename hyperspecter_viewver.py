@@ -133,7 +133,7 @@ def OnNumPointsChange(num_points):
     OnLayerChange(current_layer)
 
 def create_new_pipeline():
-    global hypercube, num_layers, current_layer, paint_flag, diag_flags
+    global hypercube, num_layers, current_layer, paint_flag, diag_flags, compare_points
     paint_flag = False
     fn = easygui.fileopenbox(msg='Открыть гиперкуб numpy', filetypes=[['.npy', 'Numpy Hypercube'], ['.tiff', 'GeoTIFF'], images_ext_list], default='*.npy')
     if fn:
@@ -162,6 +162,7 @@ def create_new_pipeline():
         cv2.setTrackbarMin('num_points', 'Settings', 1)
         current_layer = 0
         diag_flags = [True for i in range(num_layers)]#numpy.ones((num_layers,), dtype=int)
+        compare_points = []
         OnLayerChange(0)
 
 def save_diag_data():

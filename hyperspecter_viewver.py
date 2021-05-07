@@ -151,7 +151,8 @@ def create_new_pipeline():
             img = cv2.imdecode(numpy.frombuffer(f.read(), dtype=numpy.uint8), cv2.IMREAD_COLOR)
             hypercube = img.transpose((2, 0, 1))
         num_layers = hypercube.shape[0]
-        cv2.namedWindow( "Image" )
+        cv2.namedWindow( "Image", cv2.WINDOW_NORMAL )
+        cv2.resizeWindow("Image", hypercube.shape[2], hypercube.shape[1])
         cv2.namedWindow( "Settings", cv2.WINDOW_NORMAL )
         cv2.resizeWindow("Settings", 300, 100)
         cv2.setMouseCallback('Image', onmouse)

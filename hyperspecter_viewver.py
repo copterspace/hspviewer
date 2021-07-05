@@ -190,6 +190,27 @@ def write_images():
             retval, buf = cv2.imencode(ext, hypercube[i])
             buf.tofile(fn+str(i)+ext)
 
+def downscale_hypercube():
+    global hypercube, current_layer
+    msg = "Уменьшение размерности гиперкуба (c %s * %s)" % (hypercube.shape[2], hypercube.shape[1])
+    title = "Гиперкуб"
+    fieldNames = ["Разделить по горизонтали на","Разделить по вертикали на"]
+    fieldValues = ['1.0', '1.0']  
+    fieldValues = easygui.multenterbox(msg,title, fieldNames, fieldValues)
+    if fieldValues:
+        try:
+            div_X = float(fieldValues[0])
+            div_Y = float(fieldValues[1])
+            new_shape = (hypercube.shape[0], int(hypercube.shape[1]//div_Y), int(hypercube.shape[2]//div_X) )
+            new_hypercube = numpy.zeros(new_shape, dtype = numpy.uint8)
+            for i in range(new_shape[0]):
+                new_hypercube[i] = cv2.resize(hypercube[i], (new_shape[2], new_shape[1]), interpolation = cv2.INTER_NEAREST)
+            hypercube = new_hypercube
+            cv2.resizeWindow("Image", hypercube.shape[2], hypercube.shape[1])
+            OnLayerChange(current_layer)
+        except Exception:
+            pass
+
 def main():
     global diag_data
     create_new_pipeline()
@@ -204,6 +225,8 @@ def main():
             save_diag_data()
         elif ch == ord('w'):
             write_images()
+        elif ch == ord('d'):
+            downscale_hypercube()
     cv2.destroyAllWindows()
 
 diag_data = None
